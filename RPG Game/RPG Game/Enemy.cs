@@ -16,12 +16,13 @@ namespace RPG_Game
         Vector2 Target;
         Stopwatch watch = new Stopwatch();
         Stopwatch CoolDownWatch = new Stopwatch();
+        public States states { get; set; }
         Dictionary<EnemyMovements, bool> MovementToBool;
-        public int state {get;set;}
+  
         public Enemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, int numOfHearts, ContentManager content)
                           : base(tint, position, image, rotation, origin, scale, defaultState, numOfHearts, content)
         {
-            state = 0;
+            states = States.SwitchToAttack;
             Target = new Vector2();
             MovementToBool = new Dictionary<EnemyMovements, bool>()
             {
@@ -60,7 +61,7 @@ namespace RPG_Game
         {
             var currentMovement = EnemyMovements.None;
 
-            if (CoolDownWatch.ElapsedMilliseconds >= cooldown && state == 0)
+            if (CoolDownWatch.ElapsedMilliseconds >= cooldown && states == States.SwitchToAttack)
             {
                 if (Movements != EnemyMovements.SwingDown && Movements != EnemyMovements.SwingRight && Movements != EnemyMovements.SwingLeft && Movements != EnemyMovements.SwingUp)
                 {
@@ -83,21 +84,21 @@ namespace RPG_Game
                     }
                     
                 }
-                state = 1;
+                states = States.StartTimers;
                 CoolDownWatch.Reset();
             }
-            if ((Movements != EnemyMovements.IdleDown && Movements != EnemyMovements.IdleRight && Movements != EnemyMovements.IdleLeft && Movements != EnemyMovements.IdleUp) && state == 1)
+            if ((Movements != EnemyMovements.IdleDown && Movements != EnemyMovements.IdleRight && Movements != EnemyMovements.IdleLeft && Movements != EnemyMovements.IdleUp) && states == States.StartTimers)
             {
                 watch.Restart();
                 CoolDownWatch.Reset();
-                state = 2;
+                states = States.SwitchToIdle;
             }
-            if (watch.ElapsedMilliseconds >= (int)(DifferentTimes[Movements].Milliseconds * DifferentNumberOfFrames[Movements]) + 15 && CoolDownWatch.ElapsedMilliseconds == 0 && state == 2)// make 15 not a magic number
+            if (watch.ElapsedMilliseconds >= (int)(DifferentTimes[Movements].Milliseconds * DifferentNumberOfFrames[Movements]) + 15 && CoolDownWatch.ElapsedMilliseconds == 0 && states == States.SwitchToIdle)// make 15 not a magic number
             {
                 CurrentFrameIndex = 0;
                 currentMovement = ReturnIdleMovement();
                 CoolDownWatch.Restart();
-                state = 0;
+                states = States.SwitchToAttack;
             }
             
            

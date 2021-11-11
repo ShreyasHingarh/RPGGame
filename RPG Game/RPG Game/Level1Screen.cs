@@ -152,7 +152,17 @@ namespace RPG_Game
                 {
                     Player.isIntersecting = true;
                 }
-               
+            }
+            foreach (HumanEnemy human in Humans)
+            {
+                
+                if (human.HitBox.Value.Intersects(Player.HitBox.Value))
+                {
+                    Player.isIntersecting = true;
+                }
+                human.MovePlaces(ref boundry, ref AttackBoundry);
+
+                human.Animate(gameTime);
             }
 
             if (Player.isIntersecting == false)
@@ -163,12 +173,7 @@ namespace RPG_Game
             }
 
             
-            foreach (HumanEnemy human in Humans)
-            {
-
-                human.MovePlaces(ref boundry, ref AttackBoundry);
-                human.Animate(gameTime);
-            }
+            
 
             
         }

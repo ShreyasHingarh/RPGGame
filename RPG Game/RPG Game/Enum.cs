@@ -12,7 +12,7 @@ namespace RPG_Game
         IdleDown,
         IdleRight,
         IdleLeft,
-        
+        None,
         MoveUp,
         MoveDown,
         MoveLeft,
@@ -55,6 +55,13 @@ namespace RPG_Game
         IdleUp,
         IdleDown,
         None
+    };
+    
+    enum States
+    {
+        SwitchToAttack,
+        StartTimers,
+        SwitchToIdle
     };
 
 }

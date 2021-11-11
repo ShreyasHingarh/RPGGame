@@ -14,6 +14,25 @@ namespace RPG_Game
 {
     class Player1 : AnimatedSpriteClass<MovementsForPlayer>
     {
+        public override GeneralMovementTypes MovementType
+        {
+            get
+            {
+                if (Movements == MovementsForPlayer.IdleDown || Movements == MovementsForPlayer.IdleRight || Movements == MovementsForPlayer.IdleUp || Movements == MovementsForPlayer.IdleLeft)
+                {
+                    return GeneralMovementTypes.Idle;
+                }
+                if (Movements == MovementsForPlayer.MoveDown || Movements == MovementsForPlayer.MoveLeft || Movements == MovementsForPlayer.MoveRight || Movements == MovementsForPlayer.MoveUp)
+                {
+                    return GeneralMovementTypes.Moving;
+                }
+                if (Movements == MovementsForPlayer.SwingDown || Movements == MovementsForPlayer.SwingUp || Movements == MovementsForPlayer.SwingLeft || Movements == MovementsForPlayer.SwingUp)
+                {
+                    return GeneralMovementTypes.Attacking;
+                }
+                return GeneralMovementTypes.None;
+            }
+        }
         Keys lastKey = Keys.None;
         public bool isIntersecting { get; set; } 
         public int level = 0;

@@ -11,6 +11,14 @@ using System.Threading.Tasks;
 namespace RPG_Game
 {
 
+    enum GeneralMovementTypes
+    {
+        Moving,
+        Idle,
+        Attacking,
+        None
+    }
+
     class AnimatedSpriteClass<T> : Sprite
         where T : Enum
     {
@@ -22,7 +30,8 @@ namespace RPG_Game
         public Dictionary<T, Action> AlwaysRunningActions { get; set; }
         public Dictionary<T, List<Frame>> DifferentTypesOfFrames { get; set; }
 
-
+        public virtual GeneralMovementTypes MovementType { get; set; }
+        
         TimeSpan ElaspedTime = TimeSpan.Zero;
         public int CurrentFrameIndex{ get; set;}
         

@@ -15,21 +15,37 @@ namespace RPG_Game
     {
         public float lerpPercentage { get; set; }
         int index = 1;
-        
-        public int increment{get;set;}
+
+        public int increment { get; set; }
         Vector2 CurrentStartPosition;
         Player1 player;
         public Vector2 CurrentEndPosition { get; set; }
         List<Vector2> EndPositions;
         Frame previousFrame;
         public float LerpIncrement { get; set; }
-        bool DidIntersect = false;
+        bool wasIntersecting = false;
+        public override GeneralMovementTypes MovementType
+        {
+            get
+            {
+                if (Movements == EnemyMovements.IdleDown || Movements == EnemyMovements.IdleRight || Movements == EnemyMovements.IdleUp || Movements == EnemyMovements.IdleLeft)
+                {
+                    return GeneralMovementTypes.Idle;
+                }
+                if (Movements == EnemyMovements.MoveDown || Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight || Movements == EnemyMovements.MoveUp)
+                {
+                    return GeneralMovementTypes.Moving;
+                }
+                if (Movements == EnemyMovements.SwingDown || Movements == EnemyMovements.SwingUp || Movements == EnemyMovements.SwingLeft || Movements == EnemyMovements.SwingUp)
+                {
+                    return GeneralMovementTypes.Attacking;
+                }
+                return GeneralMovementTypes.None;
+            }
+        }
 
-        bool AreAnyMovementsRunning;
-        bool AreAnyIdlesRunning;
-        bool AreMovementsNotRunning;
-        public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState,ContentManager Content,List<Vector2> endPositions,float lerpIncrements,float percentage,Player1 Player)
-                          : base(tint, position, image, rotation, origin, scale, defaultState,4,Content)
+        public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player)
+                          : base(tint, position, image, rotation, origin, scale, defaultState, 4, Content)
         {
             Movements = defaultState;
 
@@ -58,7 +74,7 @@ namespace RPG_Game
                 new Frame(469,591,32,47, OriginType.Center),
                 new Frame(533,591,31,47, OriginType.Center),
             };
-            List<Frame> DownFrames  = new List<Frame>()
+            List<Frame> DownFrames = new List<Frame>()
             {
             new Frame(10,655,37,49, OriginType.Center),
             new Frame(74,655,37,49, OriginType.Center),
@@ -72,7 +88,7 @@ namespace RPG_Game
             };
             List<Frame> RightFrames = new List<Frame>()
             {
-                
+
                 new Frame(13,719,30,48, OriginType.Center),
                 new Frame(77,720,33,46, OriginType.Center),
                 new Frame(141,719,31,46, OriginType.Center),
@@ -93,9 +109,9 @@ namespace RPG_Game
             new Frame(1045,1392,24,80, new Vector2(13,59),    TimeSpan.FromSeconds(1.25)),
             new Frame(1236,1400,25,72, new Vector2(14,50),    TimeSpan.FromSeconds(1.25)),
             new Frame(1426,1408,26,64, new Vector2(15,44),    TimeSpan.FromSeconds(1.25)),
-            };                                                                     
-            List<Frame> AttackLeftFrames = new List<Frame>()                       
-            {                                                                      
+            };
+            List<Frame> AttackLeftFrames = new List<Frame>()
+            {
                 new Frame(71,1615,54,48,   new Vector2(26,30),TimeSpan.FromSeconds(1.25)),
                 new Frame(247,1615,61,48,  new Vector2(43,30),TimeSpan.FromSeconds(1.25)),
                 new Frame(437,1615,65,48,  new Vector2(44,27),TimeSpan.FromSeconds(1.25)),
@@ -104,9 +120,9 @@ namespace RPG_Game
                 new Frame(1006,1615,61,49, new Vector2(49,27),TimeSpan.FromSeconds(1.25)),
                 new Frame(1202,1615,60,49, new Vector2(46,28),TimeSpan.FromSeconds(1.25)),
                 new Frame(1400,1615,62,49, new Vector2(43,27),TimeSpan.FromSeconds(1.25)),
-            };                                                                     
-            List<Frame> AttackDownFrames = new List<Frame>()                       
-            {                                                                      
+            };
+            List<Frame> AttackDownFrames = new List<Frame>()
+            {
                 new Frame(65,1807,60,49,   new Vector2(31,28),TimeSpan.FromSeconds(1.25)),
                 new Frame(263,1807,56,48,  new Vector2(25,26),TimeSpan.FromSeconds(1.25)),
                 new Frame(460,1807,39,52,  new Vector2(20,27),TimeSpan.FromSeconds(1.25)),
@@ -115,9 +131,9 @@ namespace RPG_Game
                 new Frame(1042,1808,25,66, new Vector2(14,27),TimeSpan.FromSeconds(1.25)),
                 new Frame(1234,1806,25,60, new Vector2(14,30),TimeSpan.FromSeconds(1.25)),
                 new Frame(1420,1798,31,60, new Vector2(20,36),TimeSpan.FromSeconds(1.25)),
-            };                                                                     
-            List<Frame> AttackRightFrames = new List<Frame>()                      
-            {                                                                      
+            };
+            List<Frame> AttackRightFrames = new List<Frame>()
+            {
                 new Frame(67,1999,54,48,   new Vector2(29,27),TimeSpan.FromSeconds(1.25)),
                 new Frame(268,1999,61,48,  new Vector2(11,27),TimeSpan.FromSeconds(1.25)),
                 new Frame(458,1999,65,48,  new Vector2(22,27),TimeSpan.FromSeconds(1.25)),
@@ -214,7 +230,7 @@ namespace RPG_Game
             lerpPercentage = percentage;
             SetupMovement();
             player = Player;
-           
+
         }
 
         public void SetupMovement()
@@ -237,7 +253,7 @@ namespace RPG_Game
                     index = 0;
                 }
                 CurrentEndPosition = EndPositions[index];
-                 SetAStraightMovement(CurrentEndPosition);
+                SetAStraightMovement(CurrentEndPosition);
             }
             Position = Vector2.Lerp(CurrentStartPosition, CurrentEndPosition, lerpPercentage);
             lerpPercentage += LerpIncrement;
@@ -258,14 +274,8 @@ namespace RPG_Game
             }
             previousFrame = CurrentFrame;
         }
-        /// <summary>
-        /// Make sure Human can't move through buildings
-        /// sword hitboxes
-        /// if enemy is out of boundry start at the closest point to start lerping
-        /// Fix The MAJOR BUG HAPPENING NOW!!!!!!!!!!!!!!!!!!! why??????????????????????????????????????????????????????????
-        /// <summary>
-      
-        public void MovePlaces( ref Rectangle boundry,ref Rectangle AttackBoundry)
+
+        public void MovePlaces(ref Rectangle boundry, ref Rectangle AttackBoundry)
         {
 
             #region setupVariables
@@ -274,36 +284,35 @@ namespace RPG_Game
                (int)(player.HitBox.Value.Height + ExpansionSize));
             int AttackSize = 20;
             AttackBoundry = new Rectangle((int)player.HitBox.Value.X - AttackSize / 2, player.HitBox.Value.Y - AttackSize / 2, (int)(player.HitBox.Value.Width + AttackSize), (int)(player.HitBox.Value.Height + AttackSize));
-            AreAnyMovementsRunning = player.Movements == MovementsForPlayer.MoveDown || player.Movements == MovementsForPlayer.MoveUp
-                    || player.Movements == MovementsForPlayer.MoveRight || player.Movements == MovementsForPlayer.MoveLeft;
-            AreMovementsNotRunning = player.Movements != MovementsForPlayer.MoveDown && player.Movements != MovementsForPlayer.MoveUp
-               && player.Movements != MovementsForPlayer.MoveRight && player.Movements != MovementsForPlayer.MoveLeft;
-            AreAnyIdlesRunning = Movements == EnemyMovements.IdleDown || Movements == EnemyMovements.IdleUp 
-                || Movements == EnemyMovements.IdleLeft || Movements == EnemyMovements.IdleRight;
+         
             #endregion
 
+            /*
+            * if the human does not intersect with the large boundry and the small boundry than it should continue the square movement
+            * when the human intersects the large boundry but is not yet at the small boundry, it should start to follow the players position
+            * if the human intersects with the small boundry and the player is not moving than start attacking the player dealing damage
+            * if the player starts moving again while previously intersecting the human, the human should stop attacking and start following the player until it intersects again
+            */
+             if(HitBox.Value.Intersects(player.HitBox.Value))
+             {
+                return;
+             }
 
-            if (AreAnyMovementsRunning && DidIntersect || (state == 1 && AreAnyIdlesRunning))
-            {
-                increment = 6;
-                SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
-                DidIntersect = false;
-            }
-
-            if (HitBox.Value.Intersects(AttackBoundry) && AreMovementsNotRunning)
-            {
-                var isIdleDown = ReturnAttackMovement(5000);
-                if (isIdleDown != EnemyMovements.None)
+             if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
+             {
+                EnemyMovements attack = ReturnAttackMovement(2000);
+                if (attack != EnemyMovements.None)
                 {
-                    Movements = isIdleDown;
-                }
-                DidIntersect = true;
+                    Movements = attack;
+                    wasIntersecting = true;
+                    
+                }         
             }
-           
+
             else if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
             {
                 increment = 6;
-                double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2); 
+                double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
                 double PredictiveDistance = 0;
                 if (Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight)
                 {
@@ -313,22 +322,23 @@ namespace RPG_Game
                 {
                     PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y - increment), 2);
                 }
-                else if(Movements == EnemyMovements.MoveUp)
+                else if (Movements == EnemyMovements.MoveUp)
                 {
                     PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y + increment), 2);
-                }  
-                if (PredictiveDistance >= distanceSquared)
+                }
+                if ((PredictiveDistance >= distanceSquared && !HitBox.Value.Intersects(AttackBoundry)) || ((player.MovementType != GeneralMovementTypes.Moving 
+                    || (MovementType != GeneralMovementTypes.Idle)) && wasIntersecting))
                 {
                     SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
-                } 
+                    wasIntersecting = false;
+                }
             }
-            else
+            else if(!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
             {
                 increment = 0;
-                SetAStraightMovement(CurrentEndPosition);
                 MoveEnemyInSquare();
-                
             }
+           
         }
     }
 }
