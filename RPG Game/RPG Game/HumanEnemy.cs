@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace RPG_Game
     class HumanEnemy : Enemy
 
     {
+        #region variables
         public float lerpPercentage { get; set; }
         int index = 1;
 
@@ -44,6 +46,8 @@ namespace RPG_Game
             }
         }
 
+        Stopwatch watch = new Stopwatch();
+        #endregion
         public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player)
                           : base(tint, position, image, rotation, origin, scale, defaultState, 4, Content)
         {
@@ -284,8 +288,6 @@ namespace RPG_Game
                (int)(player.HitBox.Value.Height + ExpansionSize));
             int AttackSize = 20;
             AttackBoundry = new Rectangle((int)player.HitBox.Value.X - AttackSize / 2, player.HitBox.Value.Y - AttackSize / 2, (int)(player.HitBox.Value.Width + AttackSize), (int)(player.HitBox.Value.Height + AttackSize));
-         
-            #endregion
 
             /*
             * if the human does not intersect with the large boundry and the small boundry than it should continue the square movement
@@ -293,20 +295,16 @@ namespace RPG_Game
             * if the human intersects with the small boundry and the player is not moving than start attacking the player dealing damage
             * if the player starts moving again while previously intersecting the human, the human should stop attacking and start following the player until it intersects again
             */
-             if(HitBox.Value.Intersects(player.HitBox.Value))
-             {
-                return;
-             }
-
-             if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
-             {
+            #endregion
+            if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
+            {
                 EnemyMovements attack = ReturnAttackMovement(2000);
                 if (attack != EnemyMovements.None)
                 {
                     Movements = attack;
                     wasIntersecting = true;
-                    
-                }         
+                    return;
+                }
             }
 
             else if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
@@ -326,12 +324,28 @@ namespace RPG_Game
                 {
                     PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y + increment), 2);
                 }
-                if ((PredictiveDistance >= distanceSquared && !HitBox.Value.Intersects(AttackBoundry)) || ((player.MovementType != GeneralMovementTypes.Moving 
-                    || (MovementType != GeneralMovementTypes.Idle)) && wasIntersecting))
+                
+                if (watch.ElapsedMilliseconds >= 1000)
                 {
                     SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
                     wasIntersecting = false;
+                    watch.Reset();
+
                 }
+                else if (watch.ElapsedMilliseconds >= 10)
+                {
+                    EnemyMovements idle = ReturnIdleMovement();
+                    if (idle != EnemyMovements.None)
+                    {
+                        CurrentFrameIndex = 0;
+                        Movements = idle;
+                    }
+                }
+                else if ((PredictiveDistance >= distanceSquared && !HitBox.Value.Intersects(AttackBoundry)) || wasIntersecting && player.MovementType == GeneralMovementTypes.Moving)
+                {
+                    watch.Start();
+                }
+                
             }
             else if(!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
             {

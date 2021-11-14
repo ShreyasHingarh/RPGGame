@@ -154,14 +154,12 @@ namespace RPG_Game
                 }
             }
             foreach (HumanEnemy human in Humans)
-            {
-                
-                if (human.HitBox.Value.Intersects(Player.HitBox.Value))
+            {               
+                if (human.HitBox.Value.Intersects(Player.HitBox.Value) )
                 {
                     Player.isIntersecting = true;
                 }
                 human.MovePlaces(ref boundry, ref AttackBoundry);
-
                 human.Animate(gameTime);
             }
 
