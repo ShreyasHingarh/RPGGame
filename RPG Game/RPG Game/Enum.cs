@@ -57,11 +57,24 @@ namespace RPG_Game
         None
     };
     
-    enum States
+    enum StatesForFindingAttackMovement
     {
         SwitchToAttack,
         StartTimers,
         SwitchToIdle
     };
-
+    enum HumanMovementToPlacesStates
+    {
+        FollowingSquarePath,
+        FollowingPlayersMovements,
+        AttackingPlayer,
+        FigureWhichStateToGoTo
+    }
+    enum HumanAttackingPlayerStates
+    {
+        FindPredictiveDistance,
+        IsTargetReached,
+        SetIdle,
+        SetNewMovement
+    }
 }

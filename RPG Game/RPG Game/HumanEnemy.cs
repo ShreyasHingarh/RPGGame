@@ -17,7 +17,7 @@ namespace RPG_Game
         #region variables
         public float lerpPercentage { get; set; }
         int index = 1;
-
+        double PredictiveDistance = 0;
         public int increment { get; set; }
         Vector2 CurrentStartPosition;
         Player1 player;
@@ -25,7 +25,9 @@ namespace RPG_Game
         List<Vector2> EndPositions;
         Frame previousFrame;
         public float LerpIncrement { get; set; }
-        bool wasIntersecting = false;
+        public HumanMovementToPlacesStates HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
+        public HumanAttackingPlayerStates HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+
         public override GeneralMovementTypes MovementType
         {
             get
@@ -45,7 +47,7 @@ namespace RPG_Game
                 return GeneralMovementTypes.None;
             }
         }
-
+        public bool wasIntersecting = false;
         Stopwatch watch = new Stopwatch();
         #endregion
         public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player)
@@ -165,6 +167,7 @@ namespace RPG_Game
                 RightFrames[0]
             };
             #endregion
+            
             #region dictionaries
             DifferentTimes = new Dictionary<EnemyMovements, TimeSpan>
             {
@@ -199,10 +202,10 @@ namespace RPG_Game
             increment = 8;
             AlwaysRunningActions = new Dictionary<EnemyMovements, Action>
             {
-                {EnemyMovements.MoveUp    , () => {Position = new Vector2(Position.X,Position.Y - increment); } },
-                {EnemyMovements.MoveDown  , () => {Position = new Vector2(Position.X,Position.Y + increment); } },
-                {EnemyMovements.MoveLeft  , () => {Position = new Vector2(Position.X - increment,Position.Y); } },
-                {EnemyMovements.MoveRight , () => {Position = new Vector2(Position.X + increment,Position.Y); }},
+                {EnemyMovements.MoveUp    , () => {  Position = new Vector2(Position.X,Position.Y - increment);  } },
+                {EnemyMovements.MoveDown  , () => {  Position = new Vector2(Position.X,Position.Y + increment);  } },
+                {EnemyMovements.MoveLeft  , () => {  Position = new Vector2(Position.X - increment,Position.Y);  } },
+                {EnemyMovements.MoveRight , () => {  Position = new Vector2(Position.X + increment,Position.Y);  }},
                 {EnemyMovements.IdleUp    , () => {}},
                 {EnemyMovements.IdleDown  , () => {}},
                 {EnemyMovements.IdleLeft  , () => {}},
@@ -288,7 +291,7 @@ namespace RPG_Game
                (int)(player.HitBox.Value.Height + ExpansionSize));
             int AttackSize = 20;
             AttackBoundry = new Rectangle((int)player.HitBox.Value.X - AttackSize / 2, player.HitBox.Value.Y - AttackSize / 2, (int)(player.HitBox.Value.Width + AttackSize), (int)(player.HitBox.Value.Height + AttackSize));
-
+            
             /*
             * if the human does not intersect with the large boundry and the small boundry than it should continue the square movement
             * when the human intersects the large boundry but is not yet at the small boundry, it should start to follow the players position
@@ -296,63 +299,172 @@ namespace RPG_Game
             * if the player starts moving again while previously intersecting the human, the human should stop attacking and start following the player until it intersects again
             */
             #endregion
-            if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
+            switch (HMTPStates)
             {
-                EnemyMovements attack = ReturnAttackMovement(2000);
-                if (attack != EnemyMovements.None)
-                {
-                    Movements = attack;
-                    wasIntersecting = true;
-                    return;
-                }
-            }
+                case HumanMovementToPlacesStates.FigureWhichStateToGoTo:
+                 
+                    break;
 
-            else if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
-            {
-                increment = 6;
-                double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
-                double PredictiveDistance = 0;
-                if (Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight)
-                {
-                    PredictiveDistance = Math.Pow((player.Position.X - Position.X - increment), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
-                }
-                else if (Movements == EnemyMovements.MoveDown)
-                {
-                    PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y - increment), 2);
-                }
-                else if (Movements == EnemyMovements.MoveUp)
-                {
-                    PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y + increment), 2);
-                }
-                
-                if (watch.ElapsedMilliseconds >= 1000)
-                {
-                    SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
-                    wasIntersecting = false;
-                    watch.Reset();
+                case HumanMovementToPlacesStates.FollowingSquarePath:
 
-                }
-                else if (watch.ElapsedMilliseconds >= 10)
-                {
-                    EnemyMovements idle = ReturnIdleMovement();
-                    if (idle != EnemyMovements.None)
+                    MoveEnemyInSquare();
+                    if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
                     {
-                        CurrentFrameIndex = 0;
-                        Movements = idle;
+                        increment = 6;
+                        PredictiveDistance = 0;
+                        HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                        HMTPStates = HumanMovementToPlacesStates.FollowingPlayersMovements;
                     }
-                }
-                else if ((PredictiveDistance >= distanceSquared && !HitBox.Value.Intersects(AttackBoundry)) || wasIntersecting && player.MovementType == GeneralMovementTypes.Moving)
-                {
-                    watch.Start();
-                }
-                
+                    break;
+                case HumanMovementToPlacesStates.FollowingPlayersMovements:
+
+                    double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+                    switch (HAPStates)
+                    {
+                        case HumanAttackingPlayerStates.FindPredictiveDistance:
+
+                            if (Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight)
+                            {
+                                PredictiveDistance = Math.Pow((player.Position.X - Position.X - increment), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+                                HAPStates = HumanAttackingPlayerStates.IsTargetReached;
+                            }
+                            else if (Movements == EnemyMovements.MoveDown)
+                            {
+                                PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y - increment), 2);
+                                HAPStates = HumanAttackingPlayerStates.IsTargetReached;
+                            }
+                            else if (Movements == EnemyMovements.MoveUp)
+                            {
+                                PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y + increment), 2);
+                                HAPStates = HumanAttackingPlayerStates.IsTargetReached;
+                            }
+                            break;
+                        case HumanAttackingPlayerStates.IsTargetReached:
+                            if ((PredictiveDistance <= distanceSquared )) //This logic is definitely wrong, need to rethink our situation for switching to idle
+                            {
+                                watch.Start();
+                                HAPStates = HumanAttackingPlayerStates.SetIdle;
+                            }
+                            else
+                            {
+                                HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                            }
+                            break;
+                        case HumanAttackingPlayerStates.SetIdle:
+                            if (watch.ElapsedMilliseconds >= 10)
+                            {
+                                EnemyMovements idle = ReturnIdleMovement();
+                                if (idle != EnemyMovements.None)
+                                {
+                                    CurrentFrameIndex = 0;
+                                    Movements = idle;
+                                    
+                                    HAPStates = HumanAttackingPlayerStates.SetNewMovement;
+                                    watch.Restart();
+                                }
+                            }
+                            break;
+                        case HumanAttackingPlayerStates.SetNewMovement:
+                            if (watch.ElapsedMilliseconds >= 1000)
+                            {
+                                SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
+                                wasIntersecting = false;
+                                watch.Reset();
+                                HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                            }
+                            break;
+                    }
+                    if (!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
+                    {
+                        increment = 0;
+                        SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
+                        HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                        HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
+                    }
+                    else if(HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
+                    {
+                        HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
+                        HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                    }
+                    break;
+                case HumanMovementToPlacesStates.AttackingPlayer:
+                    EnemyMovements attack = ReturnAttackMovement(2000);
+                    if (attack != EnemyMovements.None)
+                    {
+                        Movements = attack;
+                        wasIntersecting = true;
+                    }
+                    if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
+                    {
+                        increment = 6;
+                        PredictiveDistance = 0;
+                        SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
+                        HMTPStates = HumanMovementToPlacesStates.FollowingPlayersMovements;
+                        HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                    }
+                    break;
             }
-            else if(!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
-            {
-                increment = 0;
-                MoveEnemyInSquare();
-            }
+
+
            
         }
     }
 }
+
+
+//if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
+//{
+//    EnemyMovements attack = ReturnAttackMovement(2000);
+//    if (attack != EnemyMovements.None)
+//    {
+//        Movements = attack;
+//        wasIntersecting = true;
+//        return;
+//    }
+//}
+
+//else if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
+//{
+//    increment = 6;
+//    double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+//    double PredictiveDistance = 0;
+//    if (Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight)
+//    {
+//        PredictiveDistance = Math.Pow((player.Position.X - Position.X - increment), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+//    }
+//    else if (Movements == EnemyMovements.MoveDown)
+//    {
+//        PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y - increment), 2);
+//    }
+//    else if (Movements == EnemyMovements.MoveUp)
+//    {
+//        PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y + increment), 2);
+//    }
+
+//    if (watch.ElapsedMilliseconds >= 1000)
+//    {
+//        SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
+//        wasIntersecting = false;
+//        watch.Reset();
+
+//    }
+//    else if (watch.ElapsedMilliseconds >= 10)
+//    {
+//        EnemyMovements idle = ReturnIdleMovement();
+//        if (idle != EnemyMovements.None)
+//        {
+//            CurrentFrameIndex = 0;
+//            Movements = idle;
+//        }
+//    }
+//    else if ((PredictiveDistance >= distanceSquared && !HitBox.Value.Intersects(AttackBoundry)) || wasIntersecting && player.MovementType == GeneralMovementTypes.Moving)
+//    {
+//        watch.Start();
+//    }
+
+//}
+//else if(!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
+//{
+//    increment = 0;
+//    MoveEnemyInSquare();
+//}

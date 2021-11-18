@@ -55,7 +55,7 @@ namespace RPG_Game
             GraphicsManager.PreferredBackBufferHeight = 710;
             GraphicsManager.ApplyChanges();
             AllImages = JsonConvert.DeserializeObject <List<PictureClassForLibrary>>(File.ReadAllText("AllDifferentPictures.json"));
-            
+            Font = Content.Load<SpriteFont>("File");
             Player = player;
             Player.Position = new Vector2(360,360);
             
@@ -136,10 +136,11 @@ namespace RPG_Game
             foreach (HumanEnemy human in Humans)
             {
                 human.DrawAnimation(spriteBatch,Content);
+                spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HAPStates Case: {human.HAPStates}", new Vector2(100, 130), Color.Red);
             }
-            Font = Content.Load<SpriteFont>("File");
-            MouseState mouse = Mouse.GetState();
-            spriteBatch.DrawString(Font, $"{Player.Position.X},{Player.Position.Y} || {mouse.Position.X}, {mouse.Position.Y}", new Vector2(100, 100), Color.Black);
+
+
+           
         }
         public override void Update(GameTime gameTime, MouseState mouse, KeyboardState ks)
         {
@@ -154,13 +155,16 @@ namespace RPG_Game
                 }
             }
             foreach (HumanEnemy human in Humans)
-            {               
+            {
+               
                 if (human.HitBox.Value.Intersects(Player.HitBox.Value) )
                 {
                     Player.isIntersecting = true;
                 }
                 human.MovePlaces(ref boundry, ref AttackBoundry);
+                
                 human.Animate(gameTime);
+                
             }
 
             if (Player.isIntersecting == false)
