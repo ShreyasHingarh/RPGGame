@@ -24,6 +24,7 @@ namespace RPG_Game
         public Vector2 CurrentEndPosition { get; set; }
         List<Vector2> EndPositions;
         Frame previousFrame;
+        double distanceSquared;
         public float LerpIncrement { get; set; }
         public HumanMovementToPlacesStates HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
         public HumanAttackingPlayerStates HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
@@ -301,10 +302,6 @@ namespace RPG_Game
             #endregion
             switch (HMTPStates)
             {
-                case HumanMovementToPlacesStates.FigureWhichStateToGoTo:
-                 
-                    break;
-
                 case HumanMovementToPlacesStates.FollowingSquarePath:
 
                     MoveEnemyInSquare();
@@ -318,14 +315,20 @@ namespace RPG_Game
                     break;
                 case HumanMovementToPlacesStates.FollowingPlayersMovements:
 
-                    double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+                    
                     switch (HAPStates)
                     {
                         case HumanAttackingPlayerStates.FindPredictiveDistance:
 
-                            if (Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight)
+                            distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+                            if (Movements == EnemyMovements.MoveRight)
                             {
                                 PredictiveDistance = Math.Pow((player.Position.X - Position.X - increment), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
+                                HAPStates = HumanAttackingPlayerStates.IsTargetReached;
+                            }
+                            else if(Movements == EnemyMovements.MoveLeft)
+                            {
+                                PredictiveDistance = Math.Pow((player.Position.X - Position.X + increment), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
                                 HAPStates = HumanAttackingPlayerStates.IsTargetReached;
                             }
                             else if (Movements == EnemyMovements.MoveDown)
@@ -340,7 +343,7 @@ namespace RPG_Game
                             }
                             break;
                         case HumanAttackingPlayerStates.IsTargetReached:
-                            if ((PredictiveDistance <= distanceSquared )) //This logic is definitely wrong, need to rethink our situation for switching to idle
+                            if (PredictiveDistance >= distanceSquared)
                             {
                                 watch.Start();
                                 HAPStates = HumanAttackingPlayerStates.SetIdle;
@@ -394,13 +397,14 @@ namespace RPG_Game
                         Movements = attack;
                         wasIntersecting = true;
                     }
-                    if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
+                    if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry) && player.MovementType == GeneralMovementTypes.Moving) 
                     {
                         increment = 6;
                         PredictiveDistance = 0;
                         SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
                         HMTPStates = HumanMovementToPlacesStates.FollowingPlayersMovements;
-                        HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                        watch.Start();
+                        HAPStates = HumanAttackingPlayerStates.SetIdle;
                     }
                     break;
             }
@@ -412,59 +416,3 @@ namespace RPG_Game
 }
 
 
-//if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
-//{
-//    EnemyMovements attack = ReturnAttackMovement(2000);
-//    if (attack != EnemyMovements.None)
-//    {
-//        Movements = attack;
-//        wasIntersecting = true;
-//        return;
-//    }
-//}
-
-//else if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
-//{
-//    increment = 6;
-//    double distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
-//    double PredictiveDistance = 0;
-//    if (Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight)
-//    {
-//        PredictiveDistance = Math.Pow((player.Position.X - Position.X - increment), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
-//    }
-//    else if (Movements == EnemyMovements.MoveDown)
-//    {
-//        PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y - increment), 2);
-//    }
-//    else if (Movements == EnemyMovements.MoveUp)
-//    {
-//        PredictiveDistance = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y + increment), 2);
-//    }
-
-//    if (watch.ElapsedMilliseconds >= 1000)
-//    {
-//        SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
-//        wasIntersecting = false;
-//        watch.Reset();
-
-//    }
-//    else if (watch.ElapsedMilliseconds >= 10)
-//    {
-//        EnemyMovements idle = ReturnIdleMovement();
-//        if (idle != EnemyMovements.None)
-//        {
-//            CurrentFrameIndex = 0;
-//            Movements = idle;
-//        }
-//    }
-//    else if ((PredictiveDistance >= distanceSquared && !HitBox.Value.Intersects(AttackBoundry)) || wasIntersecting && player.MovementType == GeneralMovementTypes.Moving)
-//    {
-//        watch.Start();
-//    }
-
-//}
-//else if(!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
-//{
-//    increment = 0;
-//    MoveEnemyInSquare();
-//}
