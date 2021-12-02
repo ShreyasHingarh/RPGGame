@@ -15,6 +15,7 @@ namespace RPG_Game
 
     {
         #region variables
+        Texture2D HeartImage;
         public float lerpPercentage { get; set; }
         int index = 1;
         double PredictiveDistance = 0;
@@ -55,7 +56,7 @@ namespace RPG_Game
                           : base(tint, position, image, rotation, origin, scale, defaultState, 4, Content)
         {
             Movements = defaultState;
-
+            HeartImage = Content.Load<Texture2D>("Heart");
             #region define frames
             List<Frame> UpFrames = new List<Frame>()
             {
@@ -265,20 +266,22 @@ namespace RPG_Game
             }
             Position = Vector2.Lerp(CurrentStartPosition, CurrentEndPosition, lerpPercentage);
             lerpPercentage += LerpIncrement;
-
         }
+        
         public override void DrawAnimation(SpriteBatch spriteBatch, ContentManager content)
         {
             CurrentFrame = DifferentTypesOfFrames[Movements][CurrentFrameIndex];
             SourceRectangle = CurrentFrame.Rect;
             spriteBatch.Draw(Image, Position, SourceRectangle, Tint, Rotation, CurrentFrame.Origin, Scale, Effects, LayerDepth);
-            Texture2D image = content.Load<Texture2D>("Heart");
+            
+            Vector2 scaleForHeart = new Vector2(0.5f);
             if (previousFrame == null) previousFrame = CurrentFrame;
-            HeartRectangle = new Rectangle((int)Position.X - (int)CurrentFrame.Origin.X - (int)previousFrame.Origin.X, (int)Position.Y - (int)(CurrentFrame.Origin.Y - (int)previousFrame.Origin.Y), 45, (int)TopLeftConner.Y);
+            HeartRectangle = new Rectangle((int)TopLeftConner.X, (int)TopLeftConner.Y - (int)(HeartImage.Height*scaleForHeart.Y), 
+                (int)(HeartImage.Width * scaleForHeart.X * NumberOfHearts), (int)Position.Y);
 
             for (int i = 0; i < NumberOfHearts; i++)
             {
-                spriteBatch.Draw(image, new Vector2(HeartRectangle.X + i * image.Width, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
+                spriteBatch.Draw(HeartImage, new Vector2(HeartRectangle.X + i * HeartImage.Width * scaleForHeart.X, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, scaleForHeart, SpriteEffects.None, 0);
             }
             previousFrame = CurrentFrame;
         }
@@ -319,7 +322,6 @@ namespace RPG_Game
                     switch (HAPStates)
                     {
                         case HumanAttackingPlayerStates.FindPredictiveDistance:
-
                             distanceSquared = Math.Pow((player.Position.X - Position.X), 2) + Math.Pow((player.Position.Y - Position.Y), 2);
                             if (Movements == EnemyMovements.MoveRight)
                             {
@@ -384,7 +386,7 @@ namespace RPG_Game
                         HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
                         HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
                     }
-                    else if(HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Moving)
+                    else if(HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && (player.MovementType != GeneralMovementTypes.Moving || player.isIntersecting))
                     {
                         HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
                         HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;

@@ -12,8 +12,10 @@ using System.Diagnostics;
 
 namespace RPG_Game
 {
+    
     class Player1 : AnimatedSpriteClass<MovementsForPlayer>
     {
+        Texture2D HeartImage;
         public override GeneralMovementTypes MovementType
         {
             get
@@ -55,7 +57,7 @@ namespace RPG_Game
                            : base(tint, position, image, rotation, origin, scale,defaultState,15,content)
         {
           
-
+            HeartImage = content.Load<Texture2D>("Heart");
             isIntersecting = false;
             #region define frames
             List<Frame> RightFrames = new List<Frame>()
@@ -406,13 +408,16 @@ namespace RPG_Game
         }
         public void DrawPlayer(SpriteBatch spriteBatch, ContentManager content,GraphicsDevice graphics)
         {
-            DrawAnimation(spriteBatch, content); 
-            Texture2D image = content.Load<Texture2D>("Heart");
-            HeartRectangle = new Rectangle(0,graphics.Viewport.Height - image.Height,image.Width,image.Height);
+            Vector2 scaleForHeart = new Vector2(0.5f);
+            DrawAnimation(spriteBatch, content);
             
+            HeartRectangle = new Rectangle(0, (int)(graphics.Viewport.Height - HeartImage.Height * scaleForHeart.Y), (int)(HeartImage.Width * scaleForHeart.X * NumberOfHearts)
+                , (int)HeartImage.Height);
+
             for (int i = 0; i < NumberOfHearts; i++)
             {
-                spriteBatch.Draw(image, new Vector2(HeartRectangle.X + i * image.Width, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
+                if (HeartImage == null) continue;
+                spriteBatch.Draw(HeartImage, new Vector2(HeartRectangle.X + i * HeartImage.Width * scaleForHeart.X, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, scaleForHeart, SpriteEffects.None, 0);
             }
         }
     }

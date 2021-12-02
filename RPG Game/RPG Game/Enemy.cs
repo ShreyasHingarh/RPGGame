@@ -17,20 +17,11 @@ namespace RPG_Game
         Stopwatch watch = new Stopwatch();
         Stopwatch CoolDownWatch = new Stopwatch();
         public StatesForFindingAttackMovement states { get; set; }
-        Dictionary<EnemyMovements, bool> MovementToBool;
-  
         public Enemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, int numOfHearts, ContentManager content)
                           : base(tint, position, image, rotation, origin, scale, defaultState, numOfHearts, content)
         {
             states = StatesForFindingAttackMovement.SwitchToAttack;
             Target = new Vector2();
-            MovementToBool = new Dictionary<EnemyMovements, bool>()
-            {
-                { EnemyMovements.MoveRight, Position.X  >= Target.X},
-                { EnemyMovements.MoveLeft,Position.X <= Target.X},
-                { EnemyMovements.MoveDown,Position.Y >= Target.Y },
-                { EnemyMovements.MoveUp,Position.Y <= Target.Y}
-            };
             CoolDownWatch.Start();
         }
         public EnemyMovements ReturnIdleMovement()

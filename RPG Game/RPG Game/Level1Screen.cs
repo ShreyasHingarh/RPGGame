@@ -123,20 +123,20 @@ namespace RPG_Game
            
             Player.DrawPlayer(spriteBatch,Content,Graphics);
 
-            if (boundry != null)
-            {
-                spriteBatch.Draw(pixel, boundry, Color.White * 1.5f);
-            }
-            if (AttackBoundry != null)
-            {
-                spriteBatch.Draw(pixel, AttackBoundry, Color.White * 1.5f);
-            }
-            spriteBatch.Draw(pixel, Player.HitBox.Value, Color.White * 1.5f);
+            //if (boundry != null)
+            //{
+            //    spriteBatch.Draw(pixel, boundry, Color.White * 1.5f);
+            //}
+            //if (AttackBoundry != null)
+            //{
+            //    spriteBatch.Draw(pixel, AttackBoundry, Color.White * 1.5f);
+            //}
+            //spriteBatch.Draw(pixel, Player.HitBox.Value, Color.White * 1.5f);
 
             foreach (HumanEnemy human in Humans)
             {
                 human.DrawAnimation(spriteBatch,Content);
-                spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HAPStates Case: {human.HAPStates}", new Vector2(100, 130), Color.Red);
+               // spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HAPStates Case: {human.HAPStates}", new Vector2(100, 130), Color.Red);
             }
 
 
@@ -156,9 +156,13 @@ namespace RPG_Game
             }
             foreach (HumanEnemy human in Humans)
             {
-                if (human.HitBox.Value.Intersects(Player.HitBox.Value) && Player.MovementType == GeneralMovementTypes.Moving && human.MovementType == GeneralMovementTypes.Moving)
+                if (human.HitBox.Value.Intersects(Player.HitBox.Value) || Player.HitBox.Value.Intersects(human.HitBox.Value) 
+                    && (Player.MovementType != GeneralMovementTypes.Attacking && human.MovementType != GeneralMovementTypes.Attacking) && )
                 {
                     Player.isIntersecting = true;
+                    human.CurrentFrameIndex = 0;
+                    human.Movements = human.ReturnIdleMovement();
+                    
                 }
                 else
                 {

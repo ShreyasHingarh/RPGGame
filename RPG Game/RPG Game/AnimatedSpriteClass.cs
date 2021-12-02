@@ -42,7 +42,7 @@ namespace RPG_Game
         {
             get
             {
-                return new Vector2(Position.X - Origin.X, Position.Y - Origin.Y);
+                return new Vector2((Position.X - Origin.X) * Scale.X, (Position.Y - Origin.Y) * Scale.Y);
             }
         }
 
