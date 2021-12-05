@@ -77,4 +77,10 @@ namespace RPG_Game
         SetIdle,
         SetNewMovement
     }
+     
+    enum HumanIntersectingPlayerStates
+    {
+        IsIntersecting,
+        NotIntersecting
+    }
 }

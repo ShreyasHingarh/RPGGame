@@ -76,13 +76,11 @@ namespace MapEditorGridBased
             gfx = Graphics.FromImage(Screen.Image);
             SetupGroundCover();
             string text = System.IO.File.ReadAllText("AllImages.json");
-            string TextForPictures = System.IO.File.ReadAllText(@"C:\Users\Shreyas.Hingarh\Documents\Visual Studio 2019\Projects\RPG Game\MapEditorGridBased\AllDifferentPictures.json");
+            string TextForPictures = System.IO.File.ReadAllText(@"AllDifferentPictures.json");
             AllPictures = JsonConvert.DeserializeObject<List<PictureClassForLibrary>>(TextForPictures);
             picture = new PictureClassForLibrary("GrassTile",0,0, Properties.Resources.grass_tile_2.Width,Properties.Resources.grass_tile_2.Height);
             
-
-            string Text = System.IO.File.ReadAllText(@"C:\Users\Shreyas.Hingarh\Documents\Visual Studio 2019\Projects\RPG Game\MapEditorGridBased\AllImages.json");
-            ImageTypeToFilePath = JsonConvert.DeserializeObject<Dictionary<string,string>>(Text);
+            ImageTypeToFilePath = JsonConvert.DeserializeObject<Dictionary<string,string>>(text);
             
 
             ChangeImage = new ComboBox

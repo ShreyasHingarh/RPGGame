@@ -32,6 +32,7 @@ namespace RPG_Game
         List<PictureClassForLibrary> AllImages;
         List<Sprite> Buildings = new List<Sprite>();
         List<Sprite> Paths = new List<Sprite>();
+        HumanIntersectingPlayerStates humanIntersectingPlayerStates = HumanIntersectingPlayerStates.NotIntersecting;
 
         Rectangle AttackBoundry;
         Rectangle boundry; 
@@ -123,15 +124,7 @@ namespace RPG_Game
            
             Player.DrawPlayer(spriteBatch,Content,Graphics);
 
-            //if (boundry != null)
-            //{
-            //    spriteBatch.Draw(pixel, boundry, Color.White * 1.5f);
-            //}
-            //if (AttackBoundry != null)
-            //{
-            //    spriteBatch.Draw(pixel, AttackBoundry, Color.White * 1.5f);
-            //}
-            //spriteBatch.Draw(pixel, Player.HitBox.Value, Color.White * 1.5f);
+          
 
             foreach (HumanEnemy human in Humans)
             {
@@ -156,20 +149,28 @@ namespace RPG_Game
             }
             foreach (HumanEnemy human in Humans)
             {
-                if (human.HitBox.Value.Intersects(Player.HitBox.Value) || Player.HitBox.Value.Intersects(human.HitBox.Value) 
-                    && (Player.MovementType != GeneralMovementTypes.Attacking && human.MovementType != GeneralMovementTypes.Attacking) && )
+                switch (humanIntersectingPlayerStates)
                 {
-                    Player.isIntersecting = true;
-                    human.CurrentFrameIndex = 0;
-                    human.Movements = human.ReturnIdleMovement();
-                    
+                    case HumanIntersectingPlayerStates.IsIntersecting:
+                        Player.isIntersecting = true;
+                        human.CurrentFrameIndex = 0;
+                        human.Movements = human.ReturnIdleMovement();
+                        if(!human.HitBox.Value.Intersects(Player.HitBox.Value) && !Player.HitBox.Value.Intersects(human.HitBox.Value))
+                        {
+                            humanIntersectingPlayerStates = HumanIntersectingPlayerStates.NotIntersecting;
+                        }
+                        break;
+                  
+                    case HumanIntersectingPlayerStates.NotIntersecting:
+
+                        human.MovePlaces(ref boundry, ref AttackBoundry);
+                        if (human.HitBox.Value.Intersects(Player.HitBox.Value) && Player.HitBox.Value.Intersects(human.HitBox.Value))
+                        {
+                            humanIntersectingPlayerStates = HumanIntersectingPlayerStates.IsIntersecting;
+                        }
+                        
+                        break;
                 }
-                else
-                {
-                    human.MovePlaces(ref boundry, ref AttackBoundry);
-                }
-               
-                
                 human.Animate(gameTime);
                 
             }

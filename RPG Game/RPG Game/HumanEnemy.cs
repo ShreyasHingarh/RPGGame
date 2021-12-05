@@ -49,7 +49,7 @@ namespace RPG_Game
                 return GeneralMovementTypes.None;
             }
         }
-        public bool wasIntersecting = false;
+        
         Stopwatch watch = new Stopwatch();
         #endregion
         public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player)
@@ -306,7 +306,6 @@ namespace RPG_Game
             switch (HMTPStates)
             {
                 case HumanMovementToPlacesStates.FollowingSquarePath:
-
                     MoveEnemyInSquare();
                     if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
                     {
@@ -317,8 +316,6 @@ namespace RPG_Game
                     }
                     break;
                 case HumanMovementToPlacesStates.FollowingPlayersMovements:
-
-                    
                     switch (HAPStates)
                     {
                         case HumanAttackingPlayerStates.FindPredictiveDistance:
@@ -373,7 +370,6 @@ namespace RPG_Game
                             if (watch.ElapsedMilliseconds >= 1000)
                             {
                                 SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
-                                wasIntersecting = false;
                                 watch.Reset();
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
                             }
@@ -386,7 +382,7 @@ namespace RPG_Game
                         HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
                         HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
                     }
-                    else if(HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && (player.MovementType != GeneralMovementTypes.Moving || player.isIntersecting))
+                    else if(HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) )
                     {
                         HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
                         HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
@@ -397,7 +393,6 @@ namespace RPG_Game
                     if (attack != EnemyMovements.None)
                     {
                         Movements = attack;
-                        wasIntersecting = true;
                     }
                     if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry) && player.MovementType == GeneralMovementTypes.Moving) 
                     {
