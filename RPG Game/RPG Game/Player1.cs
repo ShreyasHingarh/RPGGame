@@ -47,6 +47,7 @@ namespace RPG_Game
         public Dictionary<Keys, MovementsForPlayer> 
             DifferentKeys { get; set; }
         public Dictionary<Keys, Action> ActionsForEachKey { get; set; }
+        public Dictionary<MovementsForPlayer, MovementsForPlayer> OppositeDirections { get; set; }
        
         Vector2 initialLerpScale;
 
@@ -294,6 +295,13 @@ namespace RPG_Game
 
                    Movements = MovementsForPlayer.IdleRight;
                 } }
+            };
+            OppositeDirections = new Dictionary<MovementsForPlayer, MovementsForPlayer>()
+            {
+                { MovementsForPlayer.MoveLeft ,  MovementsForPlayer.MoveRight   },
+                { MovementsForPlayer.MoveDown ,  MovementsForPlayer.MoveUp   },
+                { MovementsForPlayer.MoveUp   ,  MovementsForPlayer.MoveDown     },
+                { MovementsForPlayer.MoveRight,  MovementsForPlayer.MoveLeft },
             };
             #endregion
             DefaultState = defaultState;
