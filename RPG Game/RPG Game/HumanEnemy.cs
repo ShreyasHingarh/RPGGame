@@ -285,7 +285,7 @@ namespace RPG_Game
 
             for (int i = 0; i < NumberOfHearts; i++)
             {
-                spriteBatch.Draw(HeartImage, new Vector2(HeartRectangle.X + i * HeartImage.Width * scaleForHeart.X, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, scaleForHeart, SpriteEffects.None, 0);
+               // spriteBatch.Draw(HeartImage, new Vector2(HeartRectangle.X + i * HeartImage.Width * scaleForHeart.X, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, scaleForHeart, SpriteEffects.None, 0);
             }
             previousFrame = CurrentFrame;
         }
@@ -311,13 +311,19 @@ namespace RPG_Game
             {
                 case HumanIntersectingPlayerStates.IsIntersecting:
                     player.isIntersecting = true;
-                    if (player.Movements != previousMovingState)
+                    CurrentFrameIndex = 0;
+                    Movements = ReturnIdleMovement();
+                    if (player.Movements != previousMovingState || !HitBox.Value.Intersects(player.HitBox.Value))
                     {
                         player.CheckKeys(ks);
                         player.Animate(gameTime);
                         if (!HitBox.Value.Intersects(player.HitBox.Value) && !player.HitBox.Value.Intersects(HitBox.Value) && player.Movements != previousMovingState)
                         {
                             player.isIntersecting = false;
+                            if(HMTPStates == HumanMovementToPlacesStates.AttackingPlayer)
+                            {
+                                states = StatesForFindingAttackMovement.SwitchToAttack;
+                            }
                             humanIntersectingPlayerStates = HumanIntersectingPlayerStates.NotIntersecting;
                         }
                     }
@@ -326,9 +332,11 @@ namespace RPG_Game
 
                 case HumanIntersectingPlayerStates.NotIntersecting:
 
-                    if (player.HitBox.Value.Intersects(HitBox.Value) && player.MovementType == GeneralMovementTypes.Moving)
+                    if (player.HitBox.Value.Intersects(HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking && MovementType != GeneralMovementTypes.Attacking)
                     {
                         previousMovingState = player.Movements;
+                        CurrentFrameIndex = 0;
+                        Movements = ReturnIdleMovement();
                         humanIntersectingPlayerStates = HumanIntersectingPlayerStates.IsIntersecting;
                     }
                     switch (HMTPStates)
@@ -415,6 +423,7 @@ namespace RPG_Game
                                 HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
                                 previousMovingState = player.Movements;
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
+                                states = StatesForFindingAttackMovement.SwitchToAttack;
                             }
                             break;
                         case HumanMovementToPlacesStates.AttackingPlayer:

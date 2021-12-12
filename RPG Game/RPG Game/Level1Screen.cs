@@ -130,7 +130,7 @@ namespace RPG_Game
             foreach (HumanEnemy human in Humans)
             {
                 human.DrawAnimation(spriteBatch,Content);
-                spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HAPStates Case: {human.HAPStates}", new Vector2(100, 130), Color.Red);
+                spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HumanIntersectingPlayerStates: {human.humanIntersectingPlayerStates}", new Vector2(100, 130), Color.Red);
             }
 
 
@@ -141,7 +141,7 @@ namespace RPG_Game
 
             Player.isIntersecting = false;
             Player.CheckKeys(ks);
-            Player.CheckMouse(mouse, Graphics, 1000);
+           
             foreach (var image in Buildings)
             {
                 if (image.HitBox.Value.Intersects(Player.HouseHitBox))
@@ -158,6 +158,7 @@ namespace RPG_Game
 
             if (Player.isIntersecting == false)
             {
+                Player.CheckMouse(mouse, Graphics, 1000);
                 Player.Animate(gameTime);
             }
 

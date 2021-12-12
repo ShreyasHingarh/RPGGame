@@ -44,7 +44,8 @@ namespace RPG_Game
             {
                 currentMovement = EnemyMovements.IdleRight;
             }
-            
+
+            CurrentFrameIndex = 0;
             return currentMovement;
         }
        
@@ -54,7 +55,7 @@ namespace RPG_Game
 
             if (CoolDownWatch.ElapsedMilliseconds >= cooldown && states == StatesForFindingAttackMovement.SwitchToAttack)
             {
-                if (Movements != EnemyMovements.SwingDown && Movements != EnemyMovements.SwingRight && Movements != EnemyMovements.SwingLeft && Movements != EnemyMovements.SwingUp)
+                if (MovementType != GeneralMovementTypes.Attacking)
                 {
                     CurrentFrameIndex = 0;
                     if (Movements == EnemyMovements.MoveUp || Movements == EnemyMovements.IdleUp)
@@ -78,7 +79,11 @@ namespace RPG_Game
                 states = StatesForFindingAttackMovement.StartTimers;
                 CoolDownWatch.Reset();
             }
-            if ((Movements != EnemyMovements.IdleDown && Movements != EnemyMovements.IdleRight && Movements != EnemyMovements.IdleLeft && Movements != EnemyMovements.IdleUp) && states == StatesForFindingAttackMovement.StartTimers)
+            else if(states == StatesForFindingAttackMovement.SwitchToAttack)
+            {
+                currentMovement = ReturnIdleMovement();
+            }
+            if ((MovementType != GeneralMovementTypes.Idle) && states == StatesForFindingAttackMovement.StartTimers)
             {
                 watch.Restart();
                 CoolDownWatch.Reset();
