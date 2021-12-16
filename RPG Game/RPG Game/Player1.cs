@@ -36,6 +36,7 @@ namespace RPG_Game
             }
         }
         Keys lastKey = Keys.None;
+        public bool didPlayerGetHit = false;
         public bool isIntersecting { get; set; } 
         public int level = 0;
 
@@ -55,7 +56,7 @@ namespace RPG_Game
 
         Stopwatch watch = new Stopwatch();
         public Player1(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, MovementsForPlayer defaultState,ContentManager content)
-                           : base(tint, position, image, rotation, origin, scale,defaultState,15,content)
+                           : base(tint, position, image, rotation, origin, scale,defaultState,20,content)
         {
           
             HeartImage = content.Load<Texture2D>("Heart");
@@ -279,20 +280,21 @@ namespace RPG_Game
                 { MovementsForPlayer.SwingUp, () =>
                 {
                    Movements = MovementsForPlayer.IdleUp;
+                   didPlayerGetHit = false;
                 }},
                 { MovementsForPlayer.SwingDown, () =>
                 {
-
+                    didPlayerGetHit = false;
                    Movements = MovementsForPlayer.IdleDown;
                 }},
                 { MovementsForPlayer.SwingLeft, () =>
                 {
-
+                    didPlayerGetHit = false;
                    Movements = MovementsForPlayer.IdleLeft;
                 }},
                 { MovementsForPlayer.SwingRight, () =>
                 {
-
+                    didPlayerGetHit = false;
                    Movements = MovementsForPlayer.IdleRight;
                 } }
             };

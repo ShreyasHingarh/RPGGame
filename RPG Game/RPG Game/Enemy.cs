@@ -14,8 +14,10 @@ namespace RPG_Game
     class Enemy : AnimatedSpriteClass<EnemyMovements>
     {
         Vector2 Target;
-        Stopwatch watch = new Stopwatch();
-        Stopwatch CoolDownWatch = new Stopwatch();
+        public Stopwatch AttackingWatch = new Stopwatch();
+        public Stopwatch CoolDownWatch = new Stopwatch();
+        public bool didEnemyGetHit = false;
+        
         public StatesForFindingAttackMovement states { get; set; }
         public Enemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, int numOfHearts, ContentManager content)
                           : base(tint, position, image, rotation, origin, scale, defaultState, numOfHearts, content)
@@ -74,10 +76,9 @@ namespace RPG_Game
                     {
                         currentMovement = EnemyMovements.SwingRight;
                     }
-                    
                 }
                 states = StatesForFindingAttackMovement.StartTimers;
-                CoolDownWatch.Reset();
+                CoolDownWatch.Restart();
             }
             else if(states == StatesForFindingAttackMovement.SwitchToAttack)
             {
@@ -85,11 +86,12 @@ namespace RPG_Game
             }
             if ((MovementType != GeneralMovementTypes.Idle) && states == StatesForFindingAttackMovement.StartTimers)
             {
-                watch.Restart();
+                AttackingWatch.Restart();
                 CoolDownWatch.Reset();
                 states = StatesForFindingAttackMovement.SwitchToIdle;
+                didEnemyGetHit = false;
             }
-            if (watch.ElapsedMilliseconds >= (int)(DifferentTimes[Movements].Milliseconds * DifferentNumberOfFrames[Movements]) + 15 && CoolDownWatch.ElapsedMilliseconds == 0 && states == StatesForFindingAttackMovement.SwitchToIdle)// make 15 not a magic number
+            if (AttackingWatch.ElapsedMilliseconds >= (int)(DifferentTimes[Movements].Milliseconds * DifferentNumberOfFrames[Movements]) + 15 && CoolDownWatch.ElapsedMilliseconds == 0 && states == StatesForFindingAttackMovement.SwitchToIdle)// make 15 not a magic number
             {
                 CurrentFrameIndex = 0;
                 currentMovement = ReturnIdleMovement();

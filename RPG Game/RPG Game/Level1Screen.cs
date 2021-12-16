@@ -51,6 +51,7 @@ namespace RPG_Game
          }
         public Level1Screen(GraphicsDevice graphics, ContentManager content,Player1 player, Microsoft.Xna.Framework.Color backgroundColor, GraphicsDeviceManager Graficos): base(graphics,content, backgroundColor,Graficos)
         {
+
             pixel = new Texture2D(graphics, 1, 1);
             pixel.SetData<Color>(new Color[]{ Color.Black * 0.3f });
             GraphicsManager.PreferredBackBufferWidth = 710;
@@ -77,7 +78,7 @@ namespace RPG_Game
                 };
                 float LerpIncrement = firstincrement;
                 
-                Humans.Add(new HumanEnemy(Color.White, new Vector2(x + increment * i , y), content.Load<Texture2D>("HumanEnemy"), 0, Vector2.Zero, Vector2.One, EnemyMovements.IdleRight,content,EndPositions,LerpIncrement,0f + i * 0.125f,Player));
+                Humans.Add(new HumanEnemy(Color.White, new Vector2(x + increment * i , y), content.Load<Texture2D>("HumanEnemy"), 0, Vector2.Zero, new Vector2(1.25f), EnemyMovements.IdleRight,content,EndPositions,LerpIncrement,0f + i * 0.125f,Player));
             }
          
             
@@ -127,14 +128,15 @@ namespace RPG_Game
 
           
 
-            foreach (HumanEnemy human in Humans)
-            {
-                human.DrawAnimation(spriteBatch,Content);
-                spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HumanIntersectingPlayerStates: {human.humanIntersectingPlayerStates}", new Vector2(100, 130), Color.Red);
+            if(Humans.Count >= 1)
+            { 
+                foreach (HumanEnemy human in Humans)
+                {
+
+                   human.DrawAnimation(spriteBatch,Content);
+                    //spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HumanIntersectingPlayerStates: {human.humanIntersectingPlayerStates}\n states: {human.states}", new Vector2(100, 130), Color.Red);
+                }
             }
-
-
-           
         }
         public override void Update(GameTime gameTime, MouseState mouse, KeyboardState ks)
         {
@@ -149,12 +151,21 @@ namespace RPG_Game
                     Player.isIntersecting = true;
                 }
             }
-            foreach (HumanEnemy human in Humans)
+            if(Humans.Count >= 1)
             {
-                
-                human.MovePlaces(ref boundry, ref AttackBoundry,ks,gameTime);
-                human.Animate(gameTime);
+                foreach (HumanEnemy human in Humans)
+                {
+
+                    human.MovePlaces(ref boundry, ref AttackBoundry, ks, gameTime);
+                    human.Animate(gameTime);
+                    
+                }
+                if (Humans[0].NumberOfHearts == 0)
+                {
+                    Humans.Clear();
+                }
             }
+           
 
             if (Player.isIntersecting == false)
             {

@@ -32,6 +32,7 @@ namespace RPG_Game
         public HumanMovementToPlacesStates HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
         public HumanAttackingPlayerStates HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
 
+        public bool didRestart = false;
         MovementsForPlayer previousMovingState;
         public override GeneralMovementTypes MovementType
         {
@@ -53,11 +54,12 @@ namespace RPG_Game
             }
         }
         
-        Stopwatch watch = new Stopwatch();
+
         #endregion
 
+
         public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player)
-                          : base(tint, position, image, rotation, origin, scale, defaultState, 4, Content)
+                          : base(tint, position, image, rotation, origin, scale, defaultState, 8, Content)
         {
             Movements = defaultState;
             HeartImage = Content.Load<Texture2D>("Heart");
@@ -285,11 +287,11 @@ namespace RPG_Game
 
             for (int i = 0; i < NumberOfHearts; i++)
             {
-               // spriteBatch.Draw(HeartImage, new Vector2(HeartRectangle.X + i * HeartImage.Width * scaleForHeart.X, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, scaleForHeart, SpriteEffects.None, 0);
+                spriteBatch.Draw(HeartImage, new Vector2(HeartRectangle.X + i * HeartImage.Width * scaleForHeart.X, HeartRectangle.Y), null, Color.White, 0, Vector2.Zero, scaleForHeart, SpriteEffects.None, 0);
             }
             previousFrame = CurrentFrame;
         }
-
+        Stopwatch watch = new Stopwatch();
         public void MovePlaces(ref Rectangle boundry, ref Rectangle AttackBoundry, KeyboardState ks, GameTime gameTime)
         {
 
@@ -320,9 +322,10 @@ namespace RPG_Game
                         if (!HitBox.Value.Intersects(player.HitBox.Value) && !player.HitBox.Value.Intersects(HitBox.Value) && player.Movements != previousMovingState)
                         {
                             player.isIntersecting = false;
-                            if(HMTPStates == HumanMovementToPlacesStates.AttackingPlayer)
+                            states = StatesForFindingAttackMovement.SwitchToAttack;
+                            if(!didRestart)
                             {
-                                states = StatesForFindingAttackMovement.SwitchToAttack;
+                                didRestart = true;
                             }
                             humanIntersectingPlayerStates = HumanIntersectingPlayerStates.NotIntersecting;
                         }
@@ -332,16 +335,22 @@ namespace RPG_Game
 
                 case HumanIntersectingPlayerStates.NotIntersecting:
 
-                    if (player.HitBox.Value.Intersects(HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking && MovementType != GeneralMovementTypes.Attacking)
+                    if (player.HitBox.Value.Intersects(HitBox.Value) && (player.MovementType ==  GeneralMovementTypes.Moving || MovementType == GeneralMovementTypes.Moving))
                     {
                         previousMovingState = player.Movements;
                         CurrentFrameIndex = 0;
                         Movements = ReturnIdleMovement();
                         humanIntersectingPlayerStates = HumanIntersectingPlayerStates.IsIntersecting;
                     }
+                    if (didRestart)
+                    {
+                        CoolDownWatch.Restart();
+                        didRestart = false;
+                    }
                     switch (HMTPStates)
                     {
                         case HumanMovementToPlacesStates.FollowingSquarePath:
+                            SetAStraightMovement(CurrentEndPosition);
                             MoveEnemyInSquare();
                             if (HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
                             {
@@ -417,7 +426,7 @@ namespace RPG_Game
                                 SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
                                 HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
-                            }
+                            }  
                             else if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value))
                             {
                                 HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
@@ -427,6 +436,7 @@ namespace RPG_Game
                             }
                             break;
                         case HumanMovementToPlacesStates.AttackingPlayer:
+                            
                             EnemyMovements attack = ReturnAttackMovement(2000);
                             if (attack != EnemyMovements.None)
                             {
@@ -439,6 +449,16 @@ namespace RPG_Game
                                 HMTPStates = HumanMovementToPlacesStates.FollowingPlayersMovements;
                                 watch.Restart();
                                 HAPStates = HumanAttackingPlayerStates.SetIdle;
+                            }
+                            if(player.MovementType == GeneralMovementTypes.Attacking && player.HitBox.Value.Intersects(HitBox.Value) && MovementType != GeneralMovementTypes.Attacking && !didEnemyGetHit)
+                            {
+                                NumberOfHearts--;
+                                didEnemyGetHit = true;
+                            }
+                            else if(MovementType == GeneralMovementTypes.Attacking && HitBox.Value.Intersects(player.HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking && !player.didPlayerGetHit)
+                            {
+                                player.NumberOfHearts--;
+                                player.didPlayerGetHit = true;
                             }
                             break;
                     }
