@@ -28,7 +28,7 @@ namespace RPG_Game
                 {
                     return GeneralMovementTypes.Moving;
                 }
-                if (Movements == MovementsForPlayer.SwingDown || Movements == MovementsForPlayer.SwingUp || Movements == MovementsForPlayer.SwingLeft || Movements == MovementsForPlayer.SwingUp)
+                if (Movements == MovementsForPlayer.SwingDown || Movements == MovementsForPlayer.SwingRight || Movements == MovementsForPlayer.SwingLeft || Movements == MovementsForPlayer.SwingUp)
                 {
                     return GeneralMovementTypes.Attacking;
                 }
@@ -36,7 +36,7 @@ namespace RPG_Game
             }
         }
         Keys lastKey = Keys.None;
-        public bool didPlayerGetHit = false;
+        public bool didEnemyGetHitByPlayer = false;
         public bool isIntersecting { get; set; } 
         public int level = 0;
 
@@ -280,21 +280,21 @@ namespace RPG_Game
                 { MovementsForPlayer.SwingUp, () =>
                 {
                    Movements = MovementsForPlayer.IdleUp;
-                   didPlayerGetHit = false;
+                   didEnemyGetHitByPlayer = false;
                 }},
                 { MovementsForPlayer.SwingDown, () =>
                 {
-                    didPlayerGetHit = false;
+                    didEnemyGetHitByPlayer = false;
                    Movements = MovementsForPlayer.IdleDown;
                 }},
                 { MovementsForPlayer.SwingLeft, () =>
                 {
-                    didPlayerGetHit = false;
+                    didEnemyGetHitByPlayer = false;
                    Movements = MovementsForPlayer.IdleLeft;
                 }},
                 { MovementsForPlayer.SwingRight, () =>
                 {
-                    didPlayerGetHit = false;
+                    didEnemyGetHitByPlayer = false;
                    Movements = MovementsForPlayer.IdleRight;
                 } }
             };

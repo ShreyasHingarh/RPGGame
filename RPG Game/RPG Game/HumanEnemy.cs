@@ -42,18 +42,18 @@ namespace RPG_Game
                 {
                     return GeneralMovementTypes.Idle;
                 }
-                if (Movements == EnemyMovements.MoveDown || Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight || Movements == EnemyMovements.MoveUp)
+                else if (Movements == EnemyMovements.MoveDown || Movements == EnemyMovements.MoveLeft || Movements == EnemyMovements.MoveRight || Movements == EnemyMovements.MoveUp)
                 {
                     return GeneralMovementTypes.Moving;
                 }
-                if (Movements == EnemyMovements.SwingDown || Movements == EnemyMovements.SwingUp || Movements == EnemyMovements.SwingLeft || Movements == EnemyMovements.SwingUp)
+                else if (Movements == EnemyMovements.SwingDown || Movements == EnemyMovements.SwingRight || Movements == EnemyMovements.SwingLeft || Movements == EnemyMovements.SwingUp)
                 {
                     return GeneralMovementTypes.Attacking;
                 }
                 return GeneralMovementTypes.None;
             }
         }
-        
+
 
         #endregion
 
@@ -90,19 +90,18 @@ namespace RPG_Game
             };
             List<Frame> DownFrames = new List<Frame>()
             {
-            new Frame(10,655,37,49, OriginType.Center),
-            new Frame(74,655,37,49, OriginType.Center),
-            new Frame(138,655,37,48, OriginType.Center),
-            new Frame(202,656,37,47, OriginType.Center),
-            new Frame(266,655,37,49, OriginType.Center),
-            new Frame(329,655,38,49, OriginType.Center),
-            new Frame(394,655,37,48, OriginType.Center),
-            new Frame(458,656,36,47, OriginType.Center),
-            new Frame(522,655,37,49, OriginType.Center),
+                new Frame(10,655,37,49, OriginType.Center),
+                new Frame(74,655,37,49, OriginType.Center),
+                new Frame(138,655,37,48, OriginType.Center),
+                new Frame(202,656,37,47, OriginType.Center),
+                new Frame(266,655,37,49, OriginType.Center),
+                new Frame(329,655,38,49, OriginType.Center),
+                new Frame(394,655,37,48, OriginType.Center),
+                new Frame(458,656,36,47, OriginType.Center),
+                new Frame(522,655,37,49, OriginType.Center),
             };
             List<Frame> RightFrames = new List<Frame>()
             {
-
                 new Frame(13,719,30,48, OriginType.Center),
                 new Frame(77,720,33,46, OriginType.Center),
                 new Frame(141,719,31,46, OriginType.Center),
@@ -115,14 +114,14 @@ namespace RPG_Game
             };
             List<Frame> AttackUpFrames = new List<Frame>()
             {
-            new Frame(67,1424,60,46,   new Vector2(29,27),    TimeSpan.FromSeconds(1.25)),
-            new Frame(259,1425,54,47,  new Vector2(29,29),    TimeSpan.FromSeconds(1.25)),
-            new Frame(457,1424,37,48,  new Vector2(23,25),    TimeSpan.FromSeconds(1.25)),
-            new Frame(658,1408,26,64,  new Vector2(14,41),    TimeSpan.FromSeconds(1.25)),
-            new Frame(852,1400,25,72,  new Vector2(13,50),    TimeSpan.FromSeconds(1.25)),
-            new Frame(1045,1392,24,80, new Vector2(13,59),    TimeSpan.FromSeconds(1.25)),
-            new Frame(1236,1400,25,72, new Vector2(14,50),    TimeSpan.FromSeconds(1.25)),
-            new Frame(1426,1408,26,64, new Vector2(15,44),    TimeSpan.FromSeconds(1.25)),
+                new Frame(67,1424,60,46,   new Vector2(29,27),    TimeSpan.FromSeconds(1.25)),
+                new Frame(259,1425,54,47,  new Vector2(29,29),    TimeSpan.FromSeconds(1.25)),
+                new Frame(457,1424,37,48,  new Vector2(23,25),    TimeSpan.FromSeconds(1.25)),
+                new Frame(658,1408,26,64,  new Vector2(14,41),    TimeSpan.FromSeconds(1.25)),
+                new Frame(852,1400,25,72,  new Vector2(13,50),    TimeSpan.FromSeconds(1.25)),
+                new Frame(1045,1392,24,80, new Vector2(13,59),    TimeSpan.FromSeconds(1.25)),
+                new Frame(1236,1400,25,72, new Vector2(14,50),    TimeSpan.FromSeconds(1.25)),
+                new Frame(1426,1408,26,64, new Vector2(15,44),    TimeSpan.FromSeconds(1.25)),
             };
             List<Frame> AttackLeftFrames = new List<Frame>()
             {
@@ -175,7 +174,7 @@ namespace RPG_Game
                 RightFrames[0]
             };
             #endregion
-            
+
             #region dictionaries
             DifferentTimes = new Dictionary<EnemyMovements, TimeSpan>
             {
@@ -273,16 +272,16 @@ namespace RPG_Game
             Position = Vector2.Lerp(CurrentStartPosition, CurrentEndPosition, lerpPercentage);
             lerpPercentage += LerpIncrement;
         }
-        
+
         public override void DrawAnimation(SpriteBatch spriteBatch, ContentManager content)
         {
             CurrentFrame = DifferentTypesOfFrames[Movements][CurrentFrameIndex];
             SourceRectangle = CurrentFrame.Rect;
             spriteBatch.Draw(Image, Position, SourceRectangle, Tint, Rotation, CurrentFrame.Origin, Scale, Effects, LayerDepth);
-            
+
             Vector2 scaleForHeart = new Vector2(0.5f);
             if (previousFrame == null) previousFrame = CurrentFrame;
-            HeartRectangle = new Rectangle((int)TopLeftConner.X, (int)TopLeftConner.Y - (int)(HeartImage.Height*scaleForHeart.Y), 
+            HeartRectangle = new Rectangle((int)TopLeftConner.X, (int)TopLeftConner.Y - (int)(HeartImage.Height * scaleForHeart.Y),
                 (int)(HeartImage.Width * scaleForHeart.X * NumberOfHearts), (int)Position.Y);
 
             for (int i = 0; i < NumberOfHearts; i++)
@@ -299,7 +298,7 @@ namespace RPG_Game
             int ExpansionSize = 300;
             boundry = new Rectangle((int)player.HitBox.Value.X - ExpansionSize / 2, player.HitBox.Value.Y - ExpansionSize / 2, (int)(player.HitBox.Value.Width + ExpansionSize),
                (int)(player.HitBox.Value.Height + ExpansionSize));
-            int AttackSize = 20;
+            int AttackSize = 15;
             AttackBoundry = new Rectangle((int)player.HitBox.Value.X - AttackSize / 2, player.HitBox.Value.Y - AttackSize / 2, (int)(player.HitBox.Value.Width + AttackSize), (int)(player.HitBox.Value.Height + AttackSize));
 
             /*
@@ -315,7 +314,7 @@ namespace RPG_Game
                     player.isIntersecting = true;
                     CurrentFrameIndex = 0;
                     Movements = ReturnIdleMovement();
-                    if (player.Movements != previousMovingState || !HitBox.Value.Intersects(player.HitBox.Value))
+                    if (player.Movements != previousMovingState && (!HitBox.Value.Intersects(player.HitBox.Value) || !HitBox.Value.Contains(player.HitBox.Value)))
                     {
                         player.CheckKeys(ks);
                         player.Animate(gameTime);
@@ -323,25 +322,19 @@ namespace RPG_Game
                         {
                             player.isIntersecting = false;
                             states = StatesForFindingAttackMovement.SwitchToAttack;
-                            if(!didRestart)
+                            if (!didRestart)
                             {
                                 didRestart = true;
                             }
                             humanIntersectingPlayerStates = HumanIntersectingPlayerStates.NotIntersecting;
                         }
                     }
-                    
+
                     break;
 
                 case HumanIntersectingPlayerStates.NotIntersecting:
 
-                    if (player.HitBox.Value.Intersects(HitBox.Value) && (player.MovementType ==  GeneralMovementTypes.Moving || MovementType == GeneralMovementTypes.Moving))
-                    {
-                        previousMovingState = player.Movements;
-                        CurrentFrameIndex = 0;
-                        Movements = ReturnIdleMovement();
-                        humanIntersectingPlayerStates = HumanIntersectingPlayerStates.IsIntersecting;
-                    }
+
                     if (didRestart)
                     {
                         CoolDownWatch.Restart();
@@ -426,9 +419,10 @@ namespace RPG_Game
                                 SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
                                 HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
-                            }  
-                            else if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value))
+                            }
+                            else if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking)
                             {
+
                                 HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
                                 previousMovingState = player.Movements;
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
@@ -436,7 +430,7 @@ namespace RPG_Game
                             }
                             break;
                         case HumanMovementToPlacesStates.AttackingPlayer:
-                            
+
                             EnemyMovements attack = ReturnAttackMovement(2000);
                             if (attack != EnemyMovements.None)
                             {
@@ -450,22 +444,29 @@ namespace RPG_Game
                                 watch.Restart();
                                 HAPStates = HumanAttackingPlayerStates.SetIdle;
                             }
-                            if(player.MovementType == GeneralMovementTypes.Attacking && player.HitBox.Value.Intersects(HitBox.Value) && MovementType != GeneralMovementTypes.Attacking && !didEnemyGetHit)
+                            if (player.MovementType == GeneralMovementTypes.Attacking && player.HitBox.Value.Intersects(HitBox.Value) && MovementType != GeneralMovementTypes.Attacking && !player.didEnemyGetHitByPlayer)
                             {
                                 NumberOfHearts--;
-                                didEnemyGetHit = true;
+                                player.didEnemyGetHitByPlayer = true;
+
                             }
-                            else if(MovementType == GeneralMovementTypes.Attacking && HitBox.Value.Intersects(player.HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking && !player.didPlayerGetHit)
+                            else if (MovementType == GeneralMovementTypes.Attacking && HitBox.Value.Intersects(player.HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking && !didPlayerGetHitByEnemy)
                             {
                                 player.NumberOfHearts--;
-                                player.didPlayerGetHit = true;
+                                didPlayerGetHitByEnemy = true;
                             }
                             break;
                     }
+                    if ((player.HitBox.Value.Intersects(HitBox.Value)) && (player.MovementType == GeneralMovementTypes.Moving))
+                    {
+                        previousMovingState = player.Movements;
+                        CurrentFrameIndex = 0;
+                        Movements = ReturnIdleMovement();
+                        humanIntersectingPlayerStates = HumanIntersectingPlayerStates.IsIntersecting;
+                    }
                     break;
+
             }
         }
     }
 }
-
-

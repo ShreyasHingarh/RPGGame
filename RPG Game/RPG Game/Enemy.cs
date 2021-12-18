@@ -16,7 +16,7 @@ namespace RPG_Game
         Vector2 Target;
         public Stopwatch AttackingWatch = new Stopwatch();
         public Stopwatch CoolDownWatch = new Stopwatch();
-        public bool didEnemyGetHit = false;
+        public bool didPlayerGetHitByEnemy = false;
         
         public StatesForFindingAttackMovement states { get; set; }
         public Enemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, int numOfHearts, ContentManager content)
@@ -89,11 +89,12 @@ namespace RPG_Game
                 AttackingWatch.Restart();
                 CoolDownWatch.Reset();
                 states = StatesForFindingAttackMovement.SwitchToIdle;
-                didEnemyGetHit = false;
+                
             }
             if (AttackingWatch.ElapsedMilliseconds >= (int)(DifferentTimes[Movements].Milliseconds * DifferentNumberOfFrames[Movements]) + 15 && CoolDownWatch.ElapsedMilliseconds == 0 && states == StatesForFindingAttackMovement.SwitchToIdle)// make 15 not a magic number
             {
                 CurrentFrameIndex = 0;
+                didPlayerGetHitByEnemy = false;
                 currentMovement = ReturnIdleMovement();
                 CoolDownWatch.Restart();
                 states = StatesForFindingAttackMovement.SwitchToAttack;

@@ -44,9 +44,9 @@ namespace RPG_Game
             {
                 if(SourceRectangle == null)
                 {
-                    return new Rectangle((int)(Position.X - Origin.X), (int)(Position.Y - Origin.Y), (int)(Image.Width * Scale.X), (int)(Scale.Y * Image.Height));
+                    return new Rectangle((int)(Position.X - Origin.X * Scale.X), (int)(Position.Y - Origin.Y * Scale.Y), (int)(Image.Width * Scale.X), (int)(Scale.Y * Image.Height));
                 }
-                return new Rectangle((int)(Position.X - (Origin.X )), (int)(Position.Y - (Origin.Y)), (int)(SourceRectangle.Value.Width * Scale.X), (int)(SourceRectangle.Value.Height * Scale.Y));
+                return new Rectangle((int)(Position.X - Origin.X * Scale.X), (int)(Position.Y - Origin.Y * Scale.Y), (int)(SourceRectangle.Value.Width * Scale.X), (int)(SourceRectangle.Value.Height * Scale.Y));
             }
             set { }
         }

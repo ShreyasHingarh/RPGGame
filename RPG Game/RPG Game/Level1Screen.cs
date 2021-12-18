@@ -53,7 +53,7 @@ namespace RPG_Game
         {
 
             pixel = new Texture2D(graphics, 1, 1);
-            pixel.SetData<Color>(new Color[]{ Color.Black * 0.3f });
+            
             GraphicsManager.PreferredBackBufferWidth = 710;
             GraphicsManager.PreferredBackBufferHeight = 710;
             GraphicsManager.ApplyChanges();
@@ -121,20 +121,23 @@ namespace RPG_Game
             foreach (var imaje in Buildings)
             {
                 spriteBatch.Draw(imaje.Image, imaje.Position, Color.White);
-               
+                
             }
            
-            Player.DrawPlayer(spriteBatch,Content,Graphics);
-
-          
-
-            if(Humans.Count >= 1)
+           
+            pixel.SetData<Color>(new Color[] {Color.Red * 0.3f });
+            //spriteBatch.Draw(pixel, boundry, Color.Black);
+            //spriteBatch.Draw(pixel, AttackBoundry, Color.Black);
+            spriteBatch.Draw(pixel, Player.HitBox.Value, Color.Black);
+            Player.DrawPlayer(spriteBatch, Content, Graphics);
+            if (Humans.Count >= 1)
             { 
                 foreach (HumanEnemy human in Humans)
                 {
-
-                   human.DrawAnimation(spriteBatch,Content);
-                    //spriteBatch.DrawString(Font, $"HMTPStates Case: {human.HMTPStates}\n HumanIntersectingPlayerStates: {human.humanIntersectingPlayerStates}\n states: {human.states}", new Vector2(100, 130), Color.Red);
+                    pixel.SetData<Color>(new Color[] { Color.Red });
+                    spriteBatch.Draw(pixel,human.HitBox.Value,Color.Red);
+                    human.DrawAnimation(spriteBatch,Content);
+                    spriteBatch.DrawString(Font, $" DidEnemyGetHitByPlayer: {Player.didEnemyGetHitByPlayer};  DidPlayerGetHitByEnemy: {human.didPlayerGetHitByEnemy}", new Vector2(0, 130), Color.Red);
                 }
             }
         }
