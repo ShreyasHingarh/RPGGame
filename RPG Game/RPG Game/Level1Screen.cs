@@ -128,16 +128,16 @@ namespace RPG_Game
             pixel.SetData<Color>(new Color[] {Color.Red * 0.3f });
             //spriteBatch.Draw(pixel, boundry, Color.Black);
             //spriteBatch.Draw(pixel, AttackBoundry, Color.Black);
-            spriteBatch.Draw(pixel, Player.HitBox.Value, Color.Black);
+            //spriteBatch.Draw(pixel, Player.HitBox.Value, Color.Black);
             Player.DrawPlayer(spriteBatch, Content, Graphics);
             if (Humans.Count >= 1)
             { 
                 foreach (HumanEnemy human in Humans)
                 {
                     pixel.SetData<Color>(new Color[] { Color.Red });
-                    spriteBatch.Draw(pixel,human.HitBox.Value,Color.Red);
+                   // spriteBatch.Draw(pixel,human.HitBox.Value,Color.Red);
                     human.DrawAnimation(spriteBatch,Content);
-                    spriteBatch.DrawString(Font, $" DidEnemyGetHitByPlayer: {Player.didEnemyGetHitByPlayer};  DidPlayerGetHitByEnemy: {human.didPlayerGetHitByEnemy}", new Vector2(0, 130), Color.Red);
+                  //  spriteBatch.DrawString(Font, $" DidEnemyGetHitByPlayer: {Player.didEnemyGetHitByPlayer};  DidPlayerGetHitByEnemy: {human.didPlayerGetHitByEnemy}", new Vector2(0, 130), Color.Red);
                 }
             }
         }

@@ -329,9 +329,7 @@ namespace RPG_Game
                             humanIntersectingPlayerStates = HumanIntersectingPlayerStates.NotIntersecting;
                         }
                     }
-
                     break;
-
                 case HumanIntersectingPlayerStates.NotIntersecting:
 
 
@@ -421,8 +419,7 @@ namespace RPG_Game
                                 HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
                             }
                             else if (HitBox.Value.Intersects(AttackBoundry) && boundry.Contains(HitBox.Value) && player.MovementType != GeneralMovementTypes.Attacking)
-                            {
-
+                            { 
                                 HMTPStates = HumanMovementToPlacesStates.AttackingPlayer;
                                 previousMovingState = player.Movements;
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
@@ -457,7 +454,7 @@ namespace RPG_Game
                             }
                             break;
                     }
-                    if ((player.HitBox.Value.Intersects(HitBox.Value)) && (player.MovementType == GeneralMovementTypes.Moving))
+                    if ((player.HitBox.Value.Intersects(HitBox.Value) || HitBox.Value.Contains(player.HitBox.Value))&& (player.MovementType == GeneralMovementTypes.Moving || (MovementType == GeneralMovementTypes.Moving && player.MovementType != GeneralMovementTypes.Attacking)))
                     {
                         previousMovingState = player.Movements;
                         CurrentFrameIndex = 0;

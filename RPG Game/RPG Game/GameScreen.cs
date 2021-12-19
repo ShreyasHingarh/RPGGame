@@ -27,7 +27,7 @@ namespace RPG_Game
         void SetupPlayer(ContentManager Content)
         {
             Texture2D image = Content.Load<Texture2D>("PersonSpriteSheet");
-            player = new Player1( Color.White, new Vector2(400 - 63 / 2, 500 - 122 / 2), image, 0, Vector2.Zero, Vector2.One, MovementsForPlayer.IdleRight,Content);
+            player = new Player1( Color.White, new Vector2(100,350), image, 0, Vector2.Zero, Vector2.One, MovementsForPlayer.IdleRight,Content);
         }
         public GameScreen(GraphicsDevice graphics, ContentManager Content, Color backgroundColor,GraphicsDeviceManager Graficos) : base(graphics, Content,backgroundColor,Graficos)
         {
