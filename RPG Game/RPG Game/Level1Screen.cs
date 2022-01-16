@@ -49,7 +49,7 @@ namespace RPG_Game
                 }
             }
          }
-        public Level1Screen(GraphicsDevice graphics, ContentManager content,Player1 player, Microsoft.Xna.Framework.Color backgroundColor, GraphicsDeviceManager Graficos): base(graphics,content, backgroundColor,Graficos)
+        public Level1Screen(GraphicsDevice graphics, ContentManager content,Player1 player, Color backgroundColor, GraphicsDeviceManager Graficos): base(graphics,content, backgroundColor,Graficos)
         {
 
             pixel = new Texture2D(graphics, 1, 1);
@@ -62,24 +62,23 @@ namespace RPG_Game
             Player = player;
             Player.Position = new Vector2(360,360);
             
-            int x = 95;
-            int y = 160;
+
             int increment = 65;
             Humans = new List<HumanEnemy>();
             float firstincrement = 0.0023f;
-            for (int i = 0; i < 1; i++)
+            Rectangle SquarePath = new Rectangle(95, 160, 615, 550);
+
+            List<Vector2> EndPositions = new List<Vector2>
             {
-                List<Vector2> EndPositions = new List<Vector2>
-                {
-                    new Vector2(x,y),
-                    new Vector2(615,y),
-                    new Vector2(615,550),
-                    new Vector2(x,550),
-                };
-                float LerpIncrement = firstincrement;
+                new Vector2(SquarePath.X,SquarePath.Y),
+                new Vector2(SquarePath.Width,SquarePath.Y),
+                new Vector2(SquarePath.Width,SquarePath.Height),
+                new Vector2(SquarePath.X,SquarePath.Height),
+            };
+            float LerpIncrement = firstincrement;
                 
-                Humans.Add(new HumanEnemy(Color.White, new Vector2(x + increment * i , y), content.Load<Texture2D>("HumanEnemy"), 0, Vector2.Zero, new Vector2(1.25f), EnemyMovements.IdleRight,content,EndPositions,LerpIncrement,0f + i * 0.125f,Player));
-            }
+            Humans.Add(new HumanEnemy(Color.White, new Vector2(SquarePath.X + increment  , SquarePath.Y), content.Load<Texture2D>("HumanEnemy"), 0, Vector2.Zero, new Vector2(1.25f), EnemyMovements.IdleRight,content,EndPositions,LerpIncrement,0f,Player,Graphics, SquarePath));
+
          
             
             Background = new Sprite[ Graphics.Viewport.Height / TileSize + 1, Graphics.Viewport.Width/ TileSize+1];

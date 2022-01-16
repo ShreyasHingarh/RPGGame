@@ -16,6 +16,7 @@ namespace RPG_Game
 
     {
         #region variables
+        GraphicsDevice Graphics;
         Texture2D HeartImage;
         public float lerpPercentage { get; set; }
         int index = 1;
@@ -34,6 +35,7 @@ namespace RPG_Game
 
         public bool didRestart = false;
         MovementsForPlayer previousMovingState;
+        Rectangle SquarePath;
         public override GeneralMovementTypes MovementType
         {
             get
@@ -57,8 +59,8 @@ namespace RPG_Game
 
         #endregion
 
-
-        public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player)
+        
+        public HumanEnemy(Color tint, Vector2 position, Texture2D image, float rotation, Vector2 origin, Vector2 scale, EnemyMovements defaultState, ContentManager Content, List<Vector2> endPositions, float lerpIncrements, float percentage, Player1 Player,GraphicsDevice graphics,Rectangle squarePath)
                           : base(tint, position, image, rotation, origin, scale, defaultState, 8, Content)
         {
             Movements = defaultState;
@@ -244,7 +246,8 @@ namespace RPG_Game
             lerpPercentage = percentage;
             SetupMovement();
             player = Player;
-
+            Graphics = graphics;
+            SquarePath = squarePath;
         }
 
         public void SetupMovement()
@@ -414,7 +417,25 @@ namespace RPG_Game
                             if (!HitBox.Value.Intersects(boundry) && !HitBox.Value.Intersects(AttackBoundry))
                             {
                                 increment = 0;
-                                SetAStraightMovement(new Vector2(player.Position.X, player.Position.Y));
+                                Vector2 MidPoint = new Vector2(SquarePath.Width /2 + SquarePath.X,SquarePath.Height/2 + SquarePath.Y);
+                                if (Position.X <= MidPoint.X && Position.Y <= MidPoint.Y)
+                                {
+                                    CurrentEndPosition = new Vector2(SquarePath.X, SquarePath.Y);
+                                }
+                                else if (Position.X >= MidPoint.X && Position.Y <= MidPoint.Y)
+                                {
+                                    CurrentEndPosition = new Vector2(SquarePath.Width, SquarePath.Y);
+                                }
+                                else if (Position.X >= MidPoint.X && Position.Y >= MidPoint.Y)
+                                {
+                                    CurrentEndPosition = new Vector2(SquarePath.Width, SquarePath.Height);
+                                }
+                                else if (Position.X <= MidPoint.X && Position.Y >= MidPoint.Y)
+                                {
+                                    CurrentEndPosition = new Vector2(SquarePath.X, SquarePath.Height);
+                                }
+
+                                SetAStraightMovement(CurrentEndPosition);
                                 HAPStates = HumanAttackingPlayerStates.FindPredictiveDistance;
                                 HMTPStates = HumanMovementToPlacesStates.FollowingSquarePath;
                             }
